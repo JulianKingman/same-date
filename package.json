@@ -1,0 +1,31 @@
+{
+  "name": "same-date",
+  "version": "1.0.0",
+  "description": "Minimal function that tells you whether dates are within the same year, month, day, or hour. Allows subdividing (e.g. 1/2 year).",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src --presets babel-preset-es2015 --out-dir lib",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JulianKingman/same-date.git"
+  },
+  "keywords": [
+    "same date",
+    "compare dates",
+    "date compare",
+    "is same date",
+    "same year",
+    "same month",
+    "same day",
+    "same hour"
+  ],
+  "author": "Julian Kingman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JulianKingman/same-date/issues"
+  },
+  "homepage": "https://github.com/JulianKingman/same-date#readme"
+}
