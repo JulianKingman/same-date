@@ -1,6 +1,6 @@
 {
   "name": "same-date",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Minimal function that tells you whether dates are within the same year, month, day, or hour. Allows subdividing (e.g. 1/2 year).",
   "main": "lib/index.js",
   "scripts": {
