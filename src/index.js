@@ -1,50 +1,46 @@
 /**
- *
- * @param {date} d1 First date to compare
- * @param {date} d2 Second date to compare
- * @param {string} unit Unit to compare by "day" (default) | "month" | "year" | "hour"
- * @param {number} sections Subsections of unit (e.g. compare 2 halves of day), default 1 (whole, not subdivided)
+ * 
+ * @param {object} options 
+ * @param {Date} options.date First date to compare
+ * @param {Date} options.compareDate Second date to compare
+ * @param {String} options.unit Compare by (hour | day | month | year)
+ * @param {Number} options.sections Subdivisions of time period (e.g. 3 = 3 compare thirds of [unit])
+ * @param {Boolean} options.local Use local time instead of UTC time
  */
-export default function isSameDate(d1, d2, unit = 'day', sections = 1) {
-  let answer = true;
-  const numForDate = [
-    {
-      unit: 'year',
-      dateFunction: 'getUTCFullYear',
-      prevDateFunction: 'getUTCMonth',
-      unitsPerSection: Math.floor(12 / sections),
-    },
-    {
-      unit: 'month',
-      dateFunction: 'getUTCMonth',
-      prevDateFunction: 'getUTCDate',
-      unitsPerSection: Math.floor(
+export default function isSameDate({
+  date: d1,
+  compareDate: d2,
+  unit = 'day',
+  sections = 1,
+  local = false,
+}) {
+  let answer = false;
+  const numForDate = {
+    hour: local ? 'getHours' : 'getUTCHours',
+    day: local ? 'getDate' : 'getUTCDate',
+    month: local ? 'getMonth' : 'getUTCMonth',
+    year: local ? 'getFullYear' : 'getUTCFullYear',
+  };
+  answer = d1[numForDate[unit]]() === d2[numForDate[unit]]();
+  if (answer && sections > 1) {
+    const prevNumForDate = {
+      hour: 'getUTCMinutes',
+      day: 'getUTCHours',
+      month: 'getUTCDate',
+      year: 'getUTCMonth',
+    };
+    const unitsPerSection = {
+      hour: Math.floor(60 / sections),
+      day: Math.floor(24 / sections),
+      month: Math.floor(
         new Date(d1.getUTCFullYear(), d1.getUTCMonth() + 1, 0).getUTCDate() /
           sections
       ),
-    },
-    {
-      unit: 'day',
-      dateFunction: 'getUTCDate',
-      prevDateFunction: 'getUTCHours',
-      unitsPerSection: Math.floor(24 / sections),
-    },
-    {
-      unit: 'hour',
-      dateFunction: 'getUTCHours',
-      prevDateFunction: 'getUTCMinutes',
-      unitsPerSection: Math.floor(60 / sections),
-    },
-  ];
-  const indexOfUnit = numForDate.findIndex(u => u.unit === unit);
-  numForDate.forEach((unitInfo, index) => {
-    if (index > indexOfUnit) return;
-    answer = answer && d1[unitInfo.dateFunction]() === d2[unitInfo.dateFunction]();
-  });
-  if (answer && sections > 1) {
+      year: Math.floor(12 / sections),
+    };
     answer =
-      Math.ceil(d1[numForDate[indexOfUnit].prevDateFunction]() / numForDate[indexOfUnit].unitsPerSection) ===
-      Math.ceil(d2[numForDate[indexOfUnit].prevDateFunction]() / numForDate[indexOfUnit].unitsPerSection);
+      Math.ceil(d1[prevNumForDate[unit]]() / unitsPerSection[unit]) ===
+      Math.ceil(d2[prevNumForDate[unit]]() / unitsPerSection[unit]);
   }
   return answer;
 }
