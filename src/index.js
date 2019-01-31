@@ -1,6 +1,6 @@
 /**
- * 
- * @param {object} options 
+ *
+ * @param {object} options
  * @param {Date} options.date First date to compare
  * @param {Date} options.compareDate Second date to compare
  * @param {String} options.unit Compare by (hour | day | month | year)
@@ -14,33 +14,63 @@ export default function isSameDate({
   sections = 1,
   local = false,
 }) {
+  const allowedUnits = ['hour', 'day', 'month', 'year'];
+  if (allowedUnits.indexOf(unit) < 0)
+    throw 'Unit must be one of hour | day | month | year';
   let answer = false;
-  const numForDate = {
-    hour: local ? 'getHours' : 'getUTCHours',
-    day: local ? 'getDate' : 'getUTCDate',
-    month: local ? 'getMonth' : 'getUTCMonth',
-    year: local ? 'getFullYear' : 'getUTCFullYear',
-  };
-  answer = d1[numForDate[unit]]() === d2[numForDate[unit]]();
-  if (answer && sections > 1) {
-    const prevNumForDate = {
-      hour: 'getUTCMinutes',
-      day: 'getUTCHours',
-      month: 'getUTCDate',
-      year: 'getUTCMonth',
-    };
-    const unitsPerSection = {
-      hour: Math.floor(60 / sections),
-      day: Math.floor(24 / sections),
-      month: Math.floor(
+  const config = [
+    {
+      key: 'minute',
+      level: 1,
+      function: local ? 'getMinutes' : 'getUTCMinutes',
+      unitsPerSection: Math.ceil(60 / sections),
+    },
+    {
+      key: 'hour',
+      level: 1,
+      function: local ? 'getHours' : 'getUTCHours',
+      unitsPerSection: Math.ceil(60 / sections),
+    },
+    {
+      key: 'day',
+      level: 2,
+      function: local ? 'getDate' : 'getUTCDate',
+      unitsPerSection: Math.ceil(24 / sections),
+    },
+    {
+      key: 'month',
+      level: 3,
+      function: local ? 'getMonth' : 'getUTCMonth',
+      unitsPerSection: Math.ceil(
         new Date(d1.getUTCFullYear(), d1.getUTCMonth() + 1, 0).getUTCDate() /
           sections
       ),
-      year: Math.floor(12 / sections),
-    };
-    answer =
-      Math.ceil(d1[prevNumForDate[unit]]() / unitsPerSection[unit]) ===
-      Math.ceil(d2[prevNumForDate[unit]]() / unitsPerSection[unit]);
+    },
+    {
+      key: 'year',
+      level: 4,
+      function: local ? 'getFullYear' : 'getUTCFullYear',
+      unitsPerSection: Math.ceil(12 / sections),
+    },
+  ];
+  let level = config.findIndex(f => f.key === unit);
+  let i = config.length - 1;
+  for (; i >= level; i--) {
+    // Otherwise just do the final check
+    answer = d1[config[i].function]() === d2[config[i].function]();
+    // Last iteration, if multiple sections, check
+    if (answer && sections > 1 && i === level) {
+      // It's the same so far, check if it falls in the same section
+      answer =
+        Math.ceil(d1[config[i - 1].function]() / config[i].unitsPerSection) ===
+        Math.ceil(d2[config[i - 1].function]() / config[i].unitsPerSection);
+      console.log(
+        answer,
+        `${config[i].key} ${d1[config[i - 1].function]()}`,
+        `${config[i].key} ${d2[config[i - 1].function]()}`,
+        config[i].unitsPerSection
+      );
+    }
   }
   return answer;
 }
