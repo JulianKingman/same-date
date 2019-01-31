@@ -17,7 +17,7 @@ export default function isSameDate({
   const allowedUnits = ['hour', 'day', 'month', 'year'];
   if (allowedUnits.indexOf(unit) < 0)
     throw 'Unit must be one of hour | day | month | year';
-  let answer = false;
+  let answer = true;
   const config = [
     {
       key: 'minute',
@@ -57,9 +57,9 @@ export default function isSameDate({
   let i = config.length - 1;
   for (; i >= level; i--) {
     // Otherwise just do the final check
-    answer = d1[config[i].function]() === d2[config[i].function]();
+    answer = answer && d1[config[i].function]() === d2[config[i].function]();
     // Last iteration, if multiple sections, check
-    if (answer && sections > 1 && i === level) {
+    if (i === level && sections > 1) {
       // It's the same so far, check if it falls in the same section
       answer =
         Math.ceil(d1[config[i - 1].function]() / config[i].unitsPerSection) ===
