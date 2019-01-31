@@ -64,12 +64,6 @@ export default function isSameDate({
       answer =
         Math.ceil(d1[config[i - 1].function]() / config[i].unitsPerSection) ===
         Math.ceil(d2[config[i - 1].function]() / config[i].unitsPerSection);
-      console.log(
-        answer,
-        `${config[i].key} ${d1[config[i - 1].function]()}`,
-        `${config[i].key} ${d2[config[i - 1].function]()}`,
-        config[i].unitsPerSection
-      );
     }
   }
   return answer;
