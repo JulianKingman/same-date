@@ -1,3 +1,9 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.default = isSameDate;
 /**
  *
  * @param {object} options
@@ -7,18 +13,21 @@
  * @param {Number} options.sections Subdivisions of time period (e.g. 3 = 3 compare thirds of [unit])
  * @param {Boolean} options.local Use local time instead of UTC time
  */
-export default function isSameDate({
-  date: d1,
-  compareDate: d2,
-  unit = 'day',
-  sections = 1,
-  local = false,
-}) {
-  const allowedUnits = ['hour', 'day', 'month', 'year'];
+function isSameDate(_ref) {
+  var d1 = _ref.date,
+    d2 = _ref.compareDate,
+    _ref$unit = _ref.unit,
+    unit = _ref$unit === undefined ? 'day' : _ref$unit,
+    _ref$sections = _ref.sections,
+    sections = _ref$sections === undefined ? 1 : _ref$sections,
+    _ref$local = _ref.local,
+    local = _ref$local === undefined ? false : _ref$local;
+
+  var allowedUnits = ['hour', 'day', 'month', 'year'];
   if (allowedUnits.indexOf(unit) < 0)
     throw 'Unit must be one of hour | day | month | year';
-  let answer = true;
-  const config = [
+  var answer = true;
+  var config = [
     {
       key: 'minute',
       level: 1,
@@ -53,8 +62,10 @@ export default function isSameDate({
       unitsPerSection: Math.ceil(12 / sections),
     },
   ];
-  let level = config.findIndex(f => f.key === unit);
-  let i = config.length - 1;
+  var level = config.findIndex(function(f) {
+    return f.key === unit;
+  });
+  var i = config.length - 1;
   for (; i >= level; i--) {
     // Otherwise just do the final check
     answer = answer && d1[config[i].function]() === d2[config[i].function]();
@@ -62,8 +73,8 @@ export default function isSameDate({
     if (i === level && sections > 1) {
       // It's the same so far, check if it falls in the same section
       answer =
-        Math.ceil(d1[config[i - 1].function]() / config[i].unitsPerSection) ===
-        Math.ceil(d2[config[i - 1].function]() / config[i].unitsPerSection);
+        Math.floor(d1[config[i - 1].function]() / config[i].unitsPerSection) ===
+        Math.floor(d2[config[i - 1].function]() / config[i].unitsPerSection);
     }
   }
   return answer;
